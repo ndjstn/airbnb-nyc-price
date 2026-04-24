@@ -1,0 +1,38 @@
+{
+  "dataset": {
+    "rows": 48798,
+    "median_price_usd": 105.0,
+    "mean_price_usd": 145.53248083937865
+  },
+  "models": {
+    "baseline_ridge": {
+      "r2": 0.5207268848328623,
+      "mae_usd": 54.77242033783013
+    },
+    "spatial_ridge": {
+      "r2": 0.5584865839042734,
+      "mae_usd": 53.329013878387954
+    },
+    "gradient_boosting": {
+      "r2": 0.6190187532805014,
+      "mae_usd": 49.79365480527678
+    }
+  },
+  "top_features": {
+    "room_type_Private room": 0.5195072767707044,
+    "dist_times_square": 0.14835005726497638,
+    "room_type_Shared room": 0.1002295693088263,
+    "longitude": 0.06020405897576911,
+    "availability_365": 0.0515519566637127,
+    "minimum_nights": 0.027342684971937772,
+    "dist_brooklyn_bridge": 0.021278562340544933,
+    "calculated_host_listings_count": 0.012697582170280003,
+    "reviews_per_month": 0.011886201156794365,
+    "dist_central_park_south": 0.009807621928834399,
+    "dist_lga_airport": 0.009245849459969603,
+    "number_of_reviews": 0.007127243125997839,
+    "neighbourhood_group_Manhattan": 0.0070329988922391545,
+    "latitude": 0.004676679644492928,
+    "min_landmark_dist": 0.004633767172121628
+  }
+}

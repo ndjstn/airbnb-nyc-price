@@ -1,0 +1,4 @@
+model,r2,mae_usd
+baseline_ridge,0.5207,54.7724
+spatial_ridge,0.5585,53.329
+gradient_boosting,0.619,49.7937
