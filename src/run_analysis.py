@@ -12,6 +12,8 @@ import argparse
 import json
 from pathlib import Path
 
+import sys
+
 import folium
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,6 +24,9 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _palette import AIRBNB_NYC as P, apply_to_mpl  # noqa: E402
 
 RNG = 42
 
@@ -34,8 +39,15 @@ LANDMARKS = {
     "prospect_park": (40.6602, -73.9690),
 }
 
-plt.rcParams.update({"figure.dpi": 120, "savefig.dpi": 150, "font.size": 11})
 sns.set_style("whitegrid")
+apply_to_mpl(P)
+plt.rcParams.update({"figure.dpi": 120, "savefig.dpi": 150, "font.size": 11})
+
+
+def _cmap_native():
+    from matplotlib.colors import LinearSegmentedColormap
+    return LinearSegmentedColormap.from_list('project', [P.bg, P.cover_subtitle, P.accent, P.header_bg])
+
 
 
 def parse_args() -> argparse.Namespace:
@@ -67,7 +79,7 @@ def engineer(df: pd.DataFrame) -> pd.DataFrame:
 def price_by_neighbourhood_figure(df: pd.DataFrame, path: Path) -> None:
     g = df.groupby("neighbourhood_group")["price"].agg(["median", "count"]).sort_values("median", ascending=False)
     fig, ax = plt.subplots(figsize=(7.5, 4.5))
-    bars = ax.bar(g.index, g["median"], color=sns.color_palette("mako_r", len(g)))
+    bars = ax.bar(g.index, g["median"], color=[P.accent, P.highlight, P.muted, P.cover_subtitle, P.header_bg])
     for bar, m, n in zip(bars, g["median"], g["count"]):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 2, f"${int(m)}\n(n={n:,})", ha="center", va="bottom")
     ax.set_ylabel("Median listing price (USD / night)")
@@ -81,7 +93,7 @@ def price_by_neighbourhood_figure(df: pd.DataFrame, path: Path) -> None:
 def room_type_figure(df: pd.DataFrame, path: Path) -> None:
     g = df.groupby(["neighbourhood_group", "room_type"])["price"].median().unstack()
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    g.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52", "#55a868"])
+    g.plot(kind="bar", ax=ax, color=[P.accent, P.highlight, P.header_bg])
     ax.set_ylabel("Median nightly price (USD)")
     ax.set_title("Median nightly price by borough and room type")
     ax.tick_params(axis="x", rotation=0)
@@ -95,7 +107,7 @@ def distance_figure(df: pd.DataFrame, path: Path) -> None:
     mask = (df["price"] > 0) & (df["price"] < 500)
     hex_ = ax.hexbin(
         df.loc[mask, "dist_times_square"], df.loc[mask, "price"],
-        gridsize=40, cmap="mako_r", mincnt=3,
+        gridsize=40, cmap=_cmap_native(), mincnt=3,
     )
     ax.set_xlabel("Distance from Times Square (miles)")
     ax.set_ylabel("Nightly price (USD)")
@@ -186,7 +198,7 @@ def main() -> None:
 
     importances = pd.Series(gbr.feature_importances_, index=X.columns).sort_values(ascending=False).head(15)
     fig, ax = plt.subplots(figsize=(7, 5))
-    importances.iloc[::-1].plot.barh(ax=ax, color="#4c72b0")
+    importances.iloc[::-1].plot.barh(ax=ax, color=P.accent)
     ax.set_xlabel("Gradient boosting importance")
     ax.set_title("Top 15 features by gradient boosting importance")
     fig.tight_layout()
